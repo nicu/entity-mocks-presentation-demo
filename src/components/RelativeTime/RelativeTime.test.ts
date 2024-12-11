@@ -2,18 +2,16 @@ import { faker } from "@faker-js/faker/.";
 import { MockEvent, MockEvents } from "./__fixtures__/MockRelativeTime";
 import { RelativeTime } from "./RelativeTime";
 
-// https://day.js.org/docs/en/display/from-now#list-of-breakdown-range
 describe("RelativeTime", () => {
   it("should generate events in chronological order ", () => {
     let currentTimestamp = new Date();
-    const chronologicalEvents = faker.helpers.multiple(
-      () => {
-        currentTimestamp = faker.date.recent({ refDate: currentTimestamp });
-        return MockEvent({ timestamp: currentTimestamp });
-      },
-      { count: 30 }
-    );
+    const chronologicalEvents = faker.helpers.multiple(() => {
+      currentTimestamp = faker.date.recent({ refDate: currentTimestamp });
+      return MockEvent({ timestamp: currentTimestamp });
+    });
+
     const events = MockEvents(chronologicalEvents);
+
     const sortedEvents = events.sort(
       (a, b) => b.timestamp.getTime() - a.timestamp.getTime()
     );
@@ -21,16 +19,17 @@ describe("RelativeTime", () => {
     expect(chronologicalEvents).toStrictEqual(sortedEvents);
   });
 
-  it("should generate 'a few seconds ago'", () => {
+  it("should generate relative times", () => {
     const now = new Date();
-    const nowMs = now.getTime();
+    const nowInMs = now.getTime();
 
+    // https://day.js.org/docs/en/display/from-now#list-of-breakdown-range
     const timestamps = [
-      now,
-      new Date(new Date(nowMs).setHours(now.getHours() - 1)),
-      new Date(new Date(nowMs).setMonth(now.getMonth() - 1)),
-      new Date(new Date(nowMs).setFullYear(now.getFullYear() - 2)),
-      new Date(new Date(nowMs).setDate(now.getDate() + 1)),
+      now, // a few seconds ago
+      new Date(new Date(nowInMs).setHours(now.getHours() - 1)), // an hour ago
+      new Date(new Date(nowInMs).setMonth(now.getMonth() - 1)), // a month ago
+      new Date(new Date(nowInMs).setFullYear(now.getFullYear() - 2)), // 2 years ago
+      new Date(new Date(nowInMs).setDate(now.getDate() + 1)), // in a day
     ];
 
     const events = MockEvents(
