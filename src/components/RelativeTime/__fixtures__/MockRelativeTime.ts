@@ -4,7 +4,7 @@ import { Event, Events } from "../RelativeTime";
 export function MockEvent(overrides: Partial<Event> = {}): Event {
   return {
     name: faker.word.words(1),
-    timestamp: faker.date.anytime(),
+    timestamp: faker.date.recent(),
     ...overrides,
   };
 }

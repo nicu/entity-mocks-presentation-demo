@@ -3,18 +3,50 @@ import { MockEvent, MockEvents } from "./__fixtures__/MockRelativeTime";
 import { RelativeTime } from "./RelativeTime";
 
 describe("RelativeTime", () => {
+  it("should generate events for the year 2020", () => {
+    // set the global date to July 1st, 2020
+    faker.setDefaultRefDate(() => new Date(2020, 6, 1));
+
+    const events = MockEvents();
+
+    expect(
+      events
+        .map((event) => event.timestamp.getFullYear())
+        .every((year) => year === 2020)
+    ).toBe(true);
+
+    // set the global date to "now"
+    faker.setDefaultRefDate(() => new Date());
+  });
+
+  it.skip("should occasionally fail (events are not guaranteed to be in chronological order)", () => {
+    const recentEvents = faker.helpers.multiple(() => MockEvent(), {
+      count: 5,
+    });
+
+    const events = MockEvents(recentEvents);
+
+    const sortedEvents = events
+      .slice()
+      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+    expect(recentEvents).toStrictEqual(sortedEvents);
+  });
+
   it("should generate events in chronological order ", () => {
     let currentTimestamp = new Date();
-    const chronologicalEvents = faker.helpers.multiple(() => {
-      currentTimestamp = faker.date.recent({ refDate: currentTimestamp });
-      return MockEvent({ timestamp: currentTimestamp });
-    });
+    const chronologicalEvents = faker.helpers.multiple(
+      () => {
+        currentTimestamp = faker.date.recent({ refDate: currentTimestamp });
+        return MockEvent({ timestamp: currentTimestamp });
+      },
+      { count: 5 }
+    );
 
     const events = MockEvents(chronologicalEvents);
 
-    const sortedEvents = events.sort(
-      (a, b) => b.timestamp.getTime() - a.timestamp.getTime()
-    );
+    const sortedEvents = events
+      .slice()
+      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
 
     expect(chronologicalEvents).toStrictEqual(sortedEvents);
   });
